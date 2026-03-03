@@ -627,10 +627,21 @@ Item {
     var DETAIL_PREFIX = INDENT + INDENT + "- ";
     var showEmptySections = pluginApi.pluginSettings.exportEmptySections;
 
-    // Header
-    lines.push("# " + pluginApi.tr("main.export_title"));
-    lines.push("");
+    // Calculate statistics
+    var totalCount = rawTodos.length;
+    var activeCount = rawTodos.filter(function(t) { return !t.completed; }).length;
+    var completedCount = totalCount - activeCount;
+    var exportDate = new Date().toISOString();
+
+    // Header with YAML front matter
     lines.push("---");
+    lines.push("export_date: " + exportDate);
+    lines.push("total: " + totalCount);
+    lines.push("active: " + activeCount);
+    lines.push("completed: " + completedCount);
+    lines.push("---");
+    lines.push("");
+    lines.push("# " + pluginApi.tr("main.export_title"));
     lines.push("");
 
     // Process each page
