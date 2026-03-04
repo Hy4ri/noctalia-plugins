@@ -590,6 +590,22 @@
       "lastUpdated": "2026-03-02T14:23:16+07:00"
     },
     {
+      "id": "nvim-session-provider",
+      "name": "Neovim Session Provider",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Krendil",
+      "description": "Open Neovim Sessions",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.5.0",
+      "license": "MIT",
+      "tags": [
+        "Launcher",
+        "Development"
+      ],
+      "lastUpdated": "2026-03-04T14:58:33+10:00"
+    },
+    {
       "id": "openhue",
       "name": "Openhue widget",
       "version": "1.0.1",
