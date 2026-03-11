@@ -17,75 +17,68 @@ Item {
   anchors.fill: parent
 
   property string backendPath: ""
+  readonly property bool showOnlyConflicts: pluginApi?.pluginSettings?.showOnlyConflicts ?? true
+
   property bool loading: false
   property bool applying: false
   property string statusMessage: ""
   property int pendingApplyIndex: -1
   property int selectedGroupIndex: 0
+  property var commonMimeTypes: [
+    "inode/directory",
+    "text/plain",
+    "text/html",
+    "application/pdf",
+    "x-scheme-handler/http",
+    "x-scheme-handler/https",
+    "x-scheme-handler/mailto",
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "video/mp4",
+    "video/x-matroska",
+    "audio/mpeg",
+    "audio/flac",
+    "application/zip",
+    "application/x-tar",
+    "application/gzip",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  ]
   property var groupTabs: [
-    { "key": "common", "name": "Default", "count": 0 },
-    { "key": "all", "name": "All MimeTypes", "count": 0 }
+    { "key": "all", "name": "All", "count": 0 }
   ]
 
   property ListModel entriesModel: ListModel {}
   property ListModel filteredEntriesModel: ListModel {}
-  property ListModel commonGroupsModel: ListModel {}
+  property var allHandlers: ({})
 
   property var applyQueue: []
   property bool batchApplying: false
 
-  readonly property var commonGroupDefinitions: {
-    var saved = pluginApi?.pluginSettings?.commonGroups
-    var defaults = pluginApi?.manifest?.metadata?.defaultSettings?.commonGroups || []
-    if (!saved || saved.length === 0) {
-      return defaults
-    }
-
-    // If user settings contain only empty mime lists, fall back to defaults.
-    for (var i = 0; i < saved.length; i++) {
-      var mimeTypes = saved[i]?.mimeTypes || []
-      for (var j = 0; j < mimeTypes.length; j++) {
-        if (String(mimeTypes[j] || "").trim() !== "") {
-          return saved
-        }
-      }
-    }
-    return defaults
-  }
-  readonly property var commonMimeTypes: {
-    var defs = commonGroupDefinitions || []
-    var types = []
-    var seen = {}
-    for (var i = 0; i < defs.length; i++) {
-      var mimeTypes = defs[i].mimeTypes || []
-      for (var j = 0; j < mimeTypes.length; j++) {
-        var mimeType = String(mimeTypes[j] || "").trim()
-        if (!mimeType || seen[mimeType]) continue
-        seen[mimeType] = true
-        types.push(mimeType)
-      }
-    }
-    return types
-  }
-  readonly property var commonTypesMeta: {
-    var defs = commonGroupDefinitions || []
-    var meta = ({})
-    for (var i = 0; i < defs.length; i++) {
-      var def = defs[i] || ({})
-      var mimeTypes = def.mimeTypes || []
-      for (var j = 0; j < mimeTypes.length; j++) {
-        var mimeType = String(mimeTypes[j] || "").trim()
-        if (!mimeType || meta[mimeType] !== undefined) continue
-        meta[mimeType] = {
-          groupKey: def.key || mimeType,
-          label: def.label || mimeType,
-          category: def.category || mimeGroupFromType(mimeType),
-          categoryOrder: def.categoryOrder ?? 99
-        }
-      }
-    }
-    return meta
-  }
+  property var commonTypesMeta: ({
+    "x-scheme-handler/http":   { label: "Web browser",    category: "Internet",   categoryOrder: 0 },
+    "x-scheme-handler/https":  { label: "HTTPS browser",  category: "Internet",   categoryOrder: 0 },
+    "x-scheme-handler/mailto": { label: "Email client",   category: "Internet",   categoryOrder: 0 },
+    "image/png":               { label: "Image viewer (.png)",   category: "Multimedia", categoryOrder: 1 },
+    "image/jpeg":              { label: "Image viewer (.jpg)",   category: "Multimedia", categoryOrder: 1 },
+    "image/gif":               { label: "Image viewer (.gif)",   category: "Multimedia", categoryOrder: 1 },
+    "audio/mpeg":              { label: "Music player (.mp3)",   category: "Multimedia", categoryOrder: 1 },
+    "audio/flac":              { label: "Music player (.flac)",   category: "Multimedia", categoryOrder: 1 },
+    "video/mp4":               { label: "Video player (.mp4)",   category: "Multimedia", categoryOrder: 1 },
+    "video/x-matroska":        { label: "Video player (.mkv)",   category: "Multimedia", categoryOrder: 1 },
+    "text/plain":              { label: "Text editor",    category: "Documents",  categoryOrder: 2 },
+    "text/html":               { label: "HTML viewer",    category: "Documents",  categoryOrder: 2 },
+    "application/pdf":         { label: "PDF viewer",     category: "Documents",  categoryOrder: 2 },
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":   { label: "Word processor", category: "Documents", categoryOrder: 2 },
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":         { label: "Spreadsheet",    category: "Documents", categoryOrder: 2 },
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": { label: "Presentation",   category: "Documents", categoryOrder: 2 },
+    "inode/directory":         { label: "File manager",   category: "Utilities",  categoryOrder: 3 },
+    "application/zip":         { label: "Archive manager (.zip)", category: "Utilities", categoryOrder: 3 },
+    "application/x-tar":       { label: "Archive manager (.tar)", category: "Utilities", categoryOrder: 3 },
+    "application/gzip":        { label: "Archive manager (.gz)", category: "Utilities", categoryOrder: 3 }
+  })
 
   function updateBackendPath() {
     if (!pluginApi || !pluginApi.pluginDir) {
@@ -104,8 +97,10 @@ Item {
     statusMessage = ""
     loading = true
 
-    // Always scan all so the Default tab can show single-handler groups too.
-    var args = ["python3", backendPath, "scan", "--all"]
+    var args = ["python3", backendPath, "scan"]
+    if (!showOnlyConflicts) {
+      args.push("--all")
+    }
 
     scanProcess.command = args
     scanProcess.running = true
@@ -120,161 +115,64 @@ Item {
 
   function selectedGroupKey() {
     if (!groupTabs || selectedGroupIndex < 0 || selectedGroupIndex >= groupTabs.length) {
-      return "common"
+      return "all"
     }
-    return groupTabs[selectedGroupIndex].key || "common"
-  }
-
-  function commonMetaForMime(mimeType) {
-    return commonTypesMeta[mimeType] || {
-      groupKey: mimeType,
-      label: mimeType,
-      category: mimeGroupFromType(mimeType),
-      categoryOrder: 99
-    }
-  }
-
-  function commonGroupKeyForMime(mimeType) {
-    return commonMetaForMime(mimeType).groupKey || mimeType
-  }
-
-  function mergeHandlers(target, seenKeys, handlers) {
-    var source = []
-    if (handlers) {
-      if (handlers.count !== undefined && handlers.get !== undefined) {
-        for (var k = 0; k < handlers.count; k++) {
-          source.push(handlers.get(k))
-        }
-      } else {
-        source = handlers
-      }
-    }
-    for (var i = 0; i < source.length; i++) {
-      var handler = source[i]
-      if (!handler || !handler.key || seenKeys[handler.key]) continue
-      seenKeys[handler.key] = true
-      target.push(handler)
-    }
-  }
-
-  function handlersForCommonGroup(sourceIndexes) {
-    var handlers = []
-    var seenKeys = {}
-    var indexes = sourceIndexes || []
-    for (var i = 0; i < indexes.length; i++) {
-      var sourceIndex = indexes[i]
-      if (sourceIndex < 0 || sourceIndex >= entriesModel.count) continue
-      mergeHandlers(handlers, seenKeys, entriesModel.get(sourceIndex).handlers)
-    }
-    return handlers
-  }
-
-
-  function rebuildCommonGroups() {
-    commonGroupsModel.clear()
-
-    var groups = {}
-    var order = []
-    for (var i = 0; i < entriesModel.count; i++) {
-      var row = entriesModel.get(i)
-      if (commonMimeTypes.indexOf(row.mimeType) === -1) continue
-
-      var meta = commonMetaForMime(row.mimeType)
-      var groupKey = meta.groupKey || row.mimeType
-      if (!groups[groupKey]) {
-        groups[groupKey] = {
-          groupKey: groupKey,
-          friendlyLabel: meta.label,
-          friendlyCategory: meta.category,
-          categoryOrder: meta.categoryOrder,
-          mimeTypes: [],
-          sourceIndexes: [],
-          selectedDesktop: "",
-          selectionDirty: false,
-          applying: false,
-          applyError: ""
-        }
-        order.push(groupKey)
-      }
-
-      var group = groups[groupKey]
-      group.mimeTypes.push(row.mimeType)
-      group.sourceIndexes.push(i)
-      if (group.selectedDesktop === "" && row.selectedDesktop) {
-        group.selectedDesktop = row.selectedDesktop
-      }
-      group.selectionDirty = group.selectionDirty || !!row.selectionDirty
-      group.applying = group.applying || !!row.applying
-      if (group.applyError === "" && row.applyError) {
-        group.applyError = row.applyError
-      }
-    }
-
-    order.sort(function(a, b) {
-      var left = groups[a]
-      var right = groups[b]
-      if (left.categoryOrder !== right.categoryOrder) return left.categoryOrder - right.categoryOrder
-      return left.friendlyLabel < right.friendlyLabel ? -1 : (left.friendlyLabel > right.friendlyLabel ? 1 : 0)
-    })
-
-    for (var j = 0; j < order.length; j++) {
-      var key = order[j]
-      var item = groups[key]
-      commonGroupsModel.append(item)
-    }
-  }
-
-  function setCommonGroupSelection(sourceIndexes, desktopId) {
-    var indexes = sourceIndexes || []
-    for (var i = 0; i < indexes.length; i++) {
-      var sourceIndex = indexes[i]
-      if (sourceIndex < 0 || sourceIndex >= entriesModel.count) continue
-      var currentDefault = entriesModel.get(sourceIndex).currentDefault || ""
-      entriesModel.setProperty(sourceIndex, "selectedDesktop", desktopId)
-      entriesModel.setProperty(sourceIndex, "selectionDirty", desktopId !== currentDefault)
-      entriesModel.setProperty(sourceIndex, "applyError", "")
-      syncFilteredRowFromSource(sourceIndex)
-    }
-    rebuildCommonGroups()
+    return groupTabs[selectedGroupIndex].key || "all"
   }
 
   function rebuildGroupTabs() {
-    var commonGroups = {}
+    var counts = {}
+    var order = []
+    var commonCount = 0
 
     for (var i = 0; i < entriesModel.count; i++) {
       var mimeType = entriesModel.get(i).mimeType
       if (commonMimeTypes.indexOf(mimeType) !== -1) {
-        commonGroups[commonGroupKeyForMime(mimeType)] = true
+        commonCount += 1
       }
+
+      var group = mimeGroupFromType(entriesModel.get(i).mimeType)
+      if (counts[group] === undefined) {
+        counts[group] = 0
+        order.push(group)
+      }
+      counts[group] += 1
     }
 
-    var tabs = [
-      { "key": "common", "name": "Default", "count": Object.keys(commonGroups).length },
-      { "key": "all", "name": "All MimeTypes", "count": entriesModel.count }
-    ]
+    order.sort()
+
+    var tabs = [{ "key": "all", "name": "All", "count": entriesModel.count }]
+    tabs.push({ "key": "common", "name": "Common", "count": commonCount })
+    for (var j = 0; j < order.length; j++) {
+      var key = order[j]
+      tabs.push({
+        "key": key,
+        "name": key,
+        "count": counts[key]
+      })
+    }
 
     groupTabs = tabs
 
-    selectedGroupIndex = 0
+    selectedGroupIndex = 1
   }
 
   function rebuildFilteredEntries() {
     filteredEntriesModel.clear()
-    rebuildCommonGroups()
 
     var group = selectedGroupKey()
     var items = []
     for (var i = 0; i < entriesModel.count; i++) {
       var row = entriesModel.get(i)
-      var include = (group === "all")
+      var include = group === "all"
         || (group === "common" && commonMimeTypes.indexOf(row.mimeType) !== -1)
+        || mimeGroupFromType(row.mimeType) === group
       if (!include) continue
 
       var meta = commonTypesMeta[row.mimeType] || null
       items.push({
         sourceIndex: i,
         mimeType: row.mimeType,
-        handlers: row.handlers,
         currentDefault: row.currentDefault,
         currentDefaultName: row.currentDefaultName,
         defaultSource: row.defaultSource,
@@ -306,7 +204,7 @@ Item {
       if (item.sourceIndex !== sourceIndex) continue
 
       var src = entriesModel.get(sourceIndex)
-      filteredEntriesModel.setProperty(i, "handlers", src.handlers)
+      // handlers are now in allHandlers, not the model
       filteredEntriesModel.setProperty(i, "currentDefault", src.currentDefault)
       filteredEntriesModel.setProperty(i, "currentDefaultName", src.currentDefaultName)
       filteredEntriesModel.setProperty(i, "defaultSource", src.defaultSource)
@@ -314,11 +212,8 @@ Item {
       filteredEntriesModel.setProperty(i, "selectionDirty", src.selectionDirty)
       filteredEntriesModel.setProperty(i, "applying", src.applying)
       filteredEntriesModel.setProperty(i, "applyError", src.applyError)
-      rebuildCommonGroups()
       return
     }
-
-    rebuildCommonGroups()
   }
 
   function hasPendingCommonChanges() {
@@ -399,13 +294,6 @@ Item {
     }
   }
 
-  onCommonGroupDefinitionsChanged: {
-    if (entriesModel.count > 0) {
-      rebuildGroupTabs()
-      rebuildFilteredEntries()
-    }
-  }
-
   Process {
     id: scanProcess
     running: false
@@ -443,9 +331,9 @@ Item {
           var handlers = row.handlers || []
           var selectedDesktop = row.currentDefault || (handlers.length > 0 ? handlers[0].key : "")
 
+          root.allHandlers[row.mimeType || ""] = handlers
           root.entriesModel.append({
             mimeType: row.mimeType || "",
-            handlers: handlers,
             currentDefault: row.currentDefault || "",
             currentDefaultName: row.currentDefaultName || "",
             defaultSource: row.defaultSource || "",
@@ -460,7 +348,9 @@ Item {
         root.rebuildFilteredEntries()
 
         if (root.filteredEntriesModel.count === 0) {
-          root.statusMessage = "No MIME handlers were found from installed desktop files."
+          root.statusMessage = root.showOnlyConflicts
+            ? "No MIME types with multiple handlers were found."
+            : "No MIME handlers were found from installed desktop files."
         }
       } catch (e) {
         root.statusMessage = "Failed to parse scan result: " + e
@@ -670,7 +560,7 @@ Item {
                   required property int index
                   required property int sourceIndex
                   required property string mimeType
-                  required property var handlers
+                  // handlers are now in allHandlers, not the model
                   required property string currentDefault
                   required property string currentDefaultName
                   required property string defaultSource
@@ -722,7 +612,7 @@ Item {
                       NComboBox {
                         Layout.fillWidth: true
                         label: pluginApi?.tr("panel.handler.label") || "Handler"
-                        model: handlers
+                        model: root.allHandlers[mimeType] || []
                         currentKey: selectedDesktop
                         enabled: !applying && !root.loading && !root.applying
                         onSelected: key => {
@@ -766,7 +656,7 @@ Item {
 
                 ListView {
                   id: commonListView
-                  model: root.commonGroupsModel
+                  model: root.filteredEntriesModel
                   spacing: Style.marginS
                   boundsBehavior: Flickable.StopAtBounds
 
@@ -788,57 +678,45 @@ Item {
 
                   delegate: Rectangle {
                     required property int index
-                    required property var sourceIndexes
-                    required property var mimeTypes
+                    required property int sourceIndex
+                    required property string mimeType
                     required property string selectedDesktop
                     required property bool selectionDirty
                     required property bool applying
                     required property string friendlyLabel
-                    required property string applyError
 
                     width: commonListView.width
-                    height: innerColumn.implicitHeight + Style.marginS
+                    height: innerRow.implicitHeight + Style.marginS
                     color: "transparent"
 
-                    ColumnLayout {
-                      id: innerColumn
+                    RowLayout {
+                      id: innerRow
                       anchors.left: parent.left
                       anchors.right: parent.right
                       anchors.verticalCenter: parent.verticalCenter
-                      spacing: Style.marginXS
-
-                      RowLayout {
-                        Layout.fillWidth: true
-                        spacing: Style.marginM
-
-                        NText {
-                          Layout.preferredWidth: 180 * Style.uiScaleRatio
-                          text: friendlyLabel + ":"
-                          horizontalAlignment: Text.AlignRight
-                          color: Color.mOnSurfaceVariant
-                          pointSize: Style.fontSizeS
-                        }
-
-                        NComboBox {
-                          id: commonCombo
-                          Layout.fillWidth: true
-                          model: root.handlersForCommonGroup(sourceIndexes)
-                          currentKey: selectedDesktop
-                          enabled: !applying && !root.loading && !root.applying && !root.batchApplying
-                          onSelected: key => {
-                            root.setCommonGroupSelection(sourceIndexes, key)
-                          }
-                        }
-                      }
+                      spacing: Style.marginM
 
                       NText {
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 180 * Style.uiScaleRatio + Style.marginM
-                        visible: applyError !== ""
-                        text: applyError
+                        Layout.preferredWidth: 180 * Style.uiScaleRatio
+                        text: friendlyLabel + ":"
+                        horizontalAlignment: Text.AlignRight
+                        color: Color.mOnSurfaceVariant
                         pointSize: Style.fontSizeS
-                        color: Color.mError
-                        wrapMode: Text.WordWrap
+                      }
+
+                      NComboBox {
+                        id: commonCombo
+                        Layout.fillWidth: true
+                        model: root.allHandlers[mimeType] || []
+                        currentKey: selectedDesktop
+                        enabled: !applying && !root.loading && !root.applying && !root.batchApplying
+                        onSelected: key => {
+                          root.entriesModel.setProperty(sourceIndex, "selectedDesktop", key)
+                          root.filteredEntriesModel.setProperty(index, "selectedDesktop", key)
+                          root.entriesModel.setProperty(sourceIndex, "selectionDirty", key !== root.entriesModel.get(sourceIndex).currentDefault)
+                          root.entriesModel.setProperty(sourceIndex, "applyError", "")
+                          root.syncFilteredRowFromSource(sourceIndex)
+                        }
                       }
                     }
                   }
