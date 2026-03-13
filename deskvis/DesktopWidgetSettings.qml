@@ -48,9 +48,9 @@ ColumnLayout {
         label:       root.pluginApi?.tr("desktopWidgetSettings.mode-label")
         description: root.pluginApi?.tr("desktopWidgetSettings.mode-description")
         model: [
-            { "key": "bars",   "name": "Bars"   },
-            { "key": "wave",   "name": "Wave"   },
-            { "key": "mirror", "name": "Mirror" }
+            { "key": "bars",     "name": "Linear"   },
+            { "key": "mirror",   "name": "Mirrored" },
+            { "key": "wave",     "name": "Wave"     }
         ]
         currentKey: root.valueMode
         onSelected: key => {
@@ -61,16 +61,18 @@ ColumnLayout {
 
     // ── Bar count (bars + mirror only) ────────────────────────────────────────
     NValueSlider {
+        property int _value: root.valueBarCount
         Layout.fillWidth: true
         visible: root.valueMode !== "wave"
         label:       root.pluginApi?.tr("desktopWidgetSettings.bar-count-label")
         description: root.pluginApi?.tr("desktopWidgetSettings.bar-count-description")
-        value: root.valueBarCount
+        value: _value
+        text: String(_value)
         from: 8
         to: 64
         stepSize: 1
         defaultValue: 32
-        onMoved: value => root.valueBarCount = Math.round(value)
+        onMoved: value => _value = Math.round(value)
         onPressedChanged: (pressed, value) => {
             if (!pressed) { root.valueBarCount = Math.round(value); root.saveSettings() }
         }
@@ -78,15 +80,17 @@ ColumnLayout {
 
     // ── Sensitivity ───────────────────────────────────────────────────────────
     NValueSlider {
+        property real _value: root.valueSensitivity
         Layout.fillWidth: true
         label:       root.pluginApi?.tr("desktopWidgetSettings.sensitivity-label")
         description: root.pluginApi?.tr("desktopWidgetSettings.sensitivity-description")
-        value: root.valueSensitivity
+        value: _value
+        text: _value.toFixed(1) + "x"
         from: 0.5
         to: 3.0
         stepSize: 0.1
         defaultValue: 1.5
-        onMoved: value => root.valueSensitivity = value
+        onMoved: value => _value = value
         onPressedChanged: (pressed, value) => {
             if (!pressed) { root.valueSensitivity = value; root.saveSettings() }
         }
@@ -94,15 +98,17 @@ ColumnLayout {
 
     // ── Smoothing ─────────────────────────────────────────────────────────────
     NValueSlider {
+        property real _value: root.valueSmoothing
         Layout.fillWidth: true
         label:       root.pluginApi?.tr("desktopWidgetSettings.smoothing-label")
         description: root.pluginApi?.tr("desktopWidgetSettings.smoothing-description")
-        value: root.valueSmoothing
+        value: _value
+        text: Math.round(_value * 100) + "%"
         from: 0.02
         to: 0.5
         stepSize: 0.01
         defaultValue: 0.18
-        onMoved: value => root.valueSmoothing = value
+        onMoved: value => _value = value
         onPressedChanged: (pressed, value) => {
             if (!pressed) { root.valueSmoothing = value; root.saveSettings() }
         }
@@ -132,30 +138,34 @@ ColumnLayout {
 
     // ── Size ──────────────────────────────────────────────────────────────────
     NValueSlider {
+        property int _value: root.valueCustomWidth
         Layout.fillWidth: true
         label:       root.pluginApi?.tr("desktopWidgetSettings.custom-width-label")
         description: root.pluginApi?.tr("desktopWidgetSettings.custom-width-description")
-        value: root.valueCustomWidth
+        value: _value
+        text: _value === 0 ? "auto" : _value + "px"
         from: 0
         to: Screen.width
         stepSize: 10
         defaultValue: 0
-        onMoved: value => root.valueCustomWidth = Math.round(value)
+        onMoved: value => _value = Math.round(value)
         onPressedChanged: (pressed, value) => {
             if (!pressed) { root.valueCustomWidth = Math.round(value); root.saveSettings() }
         }
     }
 
     NValueSlider {
+        property int _value: root.valueCustomHeight
         Layout.fillWidth: true
         label:       root.pluginApi?.tr("desktopWidgetSettings.custom-height-label")
         description: root.pluginApi?.tr("desktopWidgetSettings.custom-height-description")
-        value: root.valueCustomHeight
+        value: _value
+        text: _value === 0 ? "auto" : _value + "px"
         from: 0
         to: Screen.height
         stepSize: 10
         defaultValue: 0
-        onMoved: value => root.valueCustomHeight = Math.round(value)
+        onMoved: value => _value = Math.round(value)
         onPressedChanged: (pressed, value) => {
             if (!pressed) { root.valueCustomHeight = Math.round(value); root.saveSettings() }
         }
