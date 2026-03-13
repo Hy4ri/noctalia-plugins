@@ -48,9 +48,9 @@ ColumnLayout {
         label:       root.pluginApi?.tr("desktopWidgetSettings.mode-label")
         description: root.pluginApi?.tr("desktopWidgetSettings.mode-description")
         model: [
-            { "key": "bars",   "name": "Bars"   },
-            { "key": "wave",   "name": "Wave"   },
-            { "key": "mirror", "name": "Mirror" }
+            { "key": "bars",     "name": "Linear"   },
+            { "key": "mirror",   "name": "Mirrored" },
+            { "key": "wave",     "name": "Wave"     }
         ]
         currentKey: root.valueMode
         onSelected: key => {
