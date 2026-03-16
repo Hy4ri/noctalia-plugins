@@ -1,3 +1,5 @@
+import "."
+
 import qs.Commons
 import qs.Services.UI
 
@@ -9,11 +11,21 @@ import Qt.labs.folderlistmodel
 import Qt5Compat.GraphicalEffects
 import QtMultimedia
 
-
 // TODO: after thumbnail creation, one card change needed to show image/videos
 
 PanelWindow {
   id: root
+
+  aboveWindows: true
+  color: "transparent"
+  exclusionMode: "Ignore"
+  exclusiveZone: 0
+  implicitHeight: screen.height
+  implicitWidth: screen.width
+  onSelectedFilterChanged: rebuildFilteredItems()
+  screen: pluginApi.panelOpenScreen
+  WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+  WlrLayershell.layer: WlrLayer.Overlay
 
   property var pluginApi: null
 
@@ -23,6 +35,8 @@ PanelWindow {
   property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
   property int animationDuration: cfg.animation_duration || defaults.animation_duration
+  property color backgroundColor: cfg.background_color || defaults.background_color
+  property real backgroundOpacity: cfg.background_opacity || defaults.background_opacity
   property string cacheDir: Settings.cacheDir + "/thumbnails/"
   property int contentHeight2: cfg.card_height || defaults.card_height
   property int cardSpacing: cfg.card_spacing || defaults.card_spacing
@@ -45,14 +59,11 @@ PanelWindow {
   property var filteredItems: []
   property int filteredCount: filteredItems.length
 
-  function isVideo(fileName) {
-    var ext = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-    return filterVideos.indexOf(ext) !== -1;
-  }
+  // ── File model ──
 
-  function isImage(fileName) {
-    var ext = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-    return filterImages.indexOf(ext) !== -1;
+  property Utils utils: Utils {
+    filterImages: root.filterImages
+    filterVideos: root.filterVideos
   }
 
   function rebuildFilteredItems() {
@@ -60,8 +71,7 @@ PanelWindow {
     for (var i = 0; i < folderModel.count; i++) {
       var fn = folderModel.get(i, "fileName");
       var fp = folderModel.get(i, "filePath");
-
-      if (selectedFilter === "all" || (selectedFilter === "images" && isImage(fn)) || (selectedFilter === "videos" && isVideo(fn)))
+      if (utils.matchesFilter(fn, selectedFilter))
         items.push({
           "fileName": fn,
           "filePath": fp
@@ -73,19 +83,11 @@ PanelWindow {
   }
 
   function getFileName(idx) {
-    if (filteredItems.length === 0)
-      return "";
-    return filteredItems[idx].fileName;
+    return filteredItems.length === 0 ? "" : filteredItems[idx].fileName;
   }
 
   function getFilePath(idx) {
-    if (filteredItems.length === 0)
-      return "";
-    return filteredItems[idx].filePath;
-  }
-
-  function thumbnailName(fileName) {
-    return isVideo(fileName) ? fileName.substring(0, fileName.lastIndexOf(".")) + ".jpg" : fileName;
+    return filteredItems.length === 0 ? "" : filteredItems[idx].filePath;
   }
 
   function createThumbnails() {
@@ -98,11 +100,11 @@ PanelWindow {
       (function (idx) {
           var filePath = folderModel.get(idx, "filePath");
           var fileName = folderModel.get(idx, "fileName");
-          var thumbName = thumbnailName(fileName);
+          var thumbName = utils.thumbnailName(fileName);
           var thumbnail = cacheDir + "/" + thumbName;
 
           var cmd;
-          if (isVideo(fileName))
+          if (utils.isVideo(fileName))
             cmd = "[ -f '" + thumbnail + "' ] || ffmpeg -y -i '" + filePath + "' -vf 'select=eq(n\\,0),scale=-1:500' -frames:v 1 -q:v 2 '" + thumbnail + "' </dev/null 2>/dev/null";
           else
             cmd = "[ -f '" + thumbnail + "' ] || magick '" + filePath + "' -resize x500 -quality 95 '" + thumbnail + "'";
@@ -128,7 +130,7 @@ PanelWindow {
     }
   }
 
-  function applyCard(filePath: string, quit) {
+  function applyCard(filePath, quit) {
     root.loading = true;
     root.loadingMessage = "Applying wallpaper…";
     root.pendingProcesses++;
@@ -136,9 +138,9 @@ PanelWindow {
     var fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
     var proc;
 
-    if (isVideo(fileName))
+    if (utils.isVideo(fileName))
       proc = processComponent.createObject(null, {
-        "command": ["bash", "-c", "pkill -x mpvpaper 2>/dev/null || true; " + "sleep 0.2; " + "for m in $(hyprctl monitors | awk '/^Monitor /{print $2}'); do " + "  setsid -f mpvpaper -p -f -o '--loop-file=inf' \"$m\" '" + filePath + "' >/dev/null 2>&1 & " + "done"]
+        "command": ["bash", "-c", "pkill -x mpvpaper 2>/dev/null || true; sleep 0.2; for m in $(hyprctl monitors | awk '/^Monitor /{print $2}'); do setsid -f mpvpaper -p -f -o '--loop-file=inf' \"$m\" '" + filePath + "' >/dev/null 2>&1 & done"]
       });
     else
       proc = processComponent.createObject(null, {
@@ -156,23 +158,12 @@ PanelWindow {
     proc.running = true;
   }
 
-  screen: Quickshell.screens[0]
-  aboveWindows: true
-  color: "transparent"
-  exclusionMode: "Ignore"
-  exclusiveZone: 0
-  implicitHeight: screen ? screen.height : 1080
-  implicitWidth: screen ? screen.width : 1920
-  onSelectedFilterChanged: rebuildFilteredItems()
-  WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-  WlrLayershell.layer: WlrLayer.Overlay
-
   FolderListModel {
     id: folderModel
 
     folder: Qt.resolvedUrl("file://" + wallpaperDir)
     showDirs: false
-    nameFilters: (filterImages || []).concat(filterVideos || []).map(function(ext) { return "*." + ext; })
+    nameFilters: utils.nameFilters()
     sortField: FolderListModel.Name
     onStatusChanged: {
       if (status === FolderListModel.Ready) {
@@ -193,26 +184,27 @@ PanelWindow {
     Process {}
   }
 
-  // ── Fullscreen dim background ──
-  Rectangle {
-    property real dimOpacity: 0
+  // ── Dimmed background ──
 
+  Rectangle {
     anchors.fill: parent
-    color: Color.mOnSurface
-    opacity: dimOpacity
+    color: root.backgroundColor
+    opacity: 0.0
+
     Component.onCompleted: {
-      dimOpacity = 0.0;
+      opacity = root.backgroundOpacity;
     }
 
     Behavior on opacity {
       NumberAnimation {
-        duration: 1000
+        duration: root.animationDuration
         easing.type: Easing.OutCubic
       }
     }
   }
 
   // ── Loading indicator ──
+
   Rectangle {
     id: loadingIndicator
 
@@ -732,10 +724,10 @@ PanelWindow {
           property real fractionalSlot: offset + (cardStack.runningIndex - cardStack.animRunning)
           property int modelIndex: cardStack.wrappedIndex(Math.round(cardStack.runningIndex) + offset)
           property string currentFileName: root.getFileName(modelIndex)
-          property bool isVideoFile: root.isVideo(currentFileName)
+          property bool isVideoFile: root.utils.isVideo(currentFileName)
           property bool isCenter: offset === 0
 
-          property string targetSource: root.filteredCount > 0 ? `file://${cacheDir}/${root.thumbnailName(currentFileName)}` : ""
+          property string targetSource: root.filteredCount > 0 ? `file://${cacheDir}/${utils.thumbnailName(currentFileName)}` : ""
 
           onTargetSourceChanged: {
             if (img.source.toString() !== "" && img.source.toString() !== targetSource) {

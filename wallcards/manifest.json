@@ -18,6 +18,8 @@
   "metadata": {
     "defaultSettings": {
       "animation_duration": 750,
+      "background_color": null,
+      "background_opacity": null,
       "cards_shown": 11,
       "card_height": 500,
       "card_spacing": 8,
