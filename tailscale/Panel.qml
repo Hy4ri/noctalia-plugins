@@ -218,7 +218,7 @@ Item {
   }
 
   property real contentPreferredWidth: panelReady ? 400 * Style.uiScaleRatio : 0
-  property real contentPreferredHeight: panelReady ? Math.min(500, 100 + (mainInstance?.peerList?.length || 0) * 60) * Style.uiScaleRatio : 0
+  property real contentPreferredHeight: panelReady ? Math.min(500, 200 + sortedPeerList.length * 48) * Style.uiScaleRatio : 0
 
   anchors.fill: parent
 
@@ -229,6 +229,7 @@ Item {
     visible: panelReady
 
     ColumnLayout {
+      id: mainContainer
       anchors {
         fill: parent
         margins: Style.marginM
@@ -405,7 +406,7 @@ Item {
             Layout.fillHeight: true
             clip: true
             contentWidth: width
-            contentHeight: peerListColumn.height
+            contentHeight: peerListColumn.implicitHeight
             interactive: contentHeight > height
             boundsBehavior: Flickable.StopAtBounds
             pressDelay: 0
