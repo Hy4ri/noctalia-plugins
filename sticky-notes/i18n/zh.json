@@ -23,7 +23,7 @@
     "save": "保存",
     "delete": "删除",
     "placeholder": "开始用 Markdown 写作...",
-    "hint": "Ctrl+Enter 保存 · Esc 取消"
+    "hint": "Ctrl+S 保存"
   },
   "settings": {
     "notesDir": {

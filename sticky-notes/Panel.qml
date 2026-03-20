@@ -33,6 +33,14 @@ Item {
   readonly property bool allowAttach: true
 
   anchors.fill: parent
+  focus: true
+
+  Keys.onPressed: (event) => {
+    if (event.key === Qt.Key_Escape && noteList.hasActiveEditor) {
+      noteList.saveActiveEditor();
+      event.accepted = true;
+    }
+  }
 
   // ── Notes Model (ListModel for proper Repeater updates) ──
   ListModel { id: notesModel }

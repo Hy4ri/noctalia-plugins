@@ -21,6 +21,7 @@ Item {
   property string editingNoteId: ""
   property string editingContent: ""
   property bool creatingNew: false
+  readonly property bool hasActiveEditor: creatingNew || editingIndex >= 0
 
   // Provide actual total content height (grid + spacing + top action row)
   property real listContentHeight: gridFlow.height + (36 * Style.uiScaleRatio) 
@@ -63,6 +64,30 @@ Item {
     root.editingNoteId = "";
     root.editingContent = "";
     root.creatingNew = false;
+    root.newNoteColor = "";
+  }
+
+  function saveActiveEditor() {
+    if (root.creatingNew) {
+      root.finishEditing(newNoteCard.getText(), root.newNoteColor);
+      return;
+    }
+
+    if (root.editingIndex < 0) return;
+
+    var activeCard = noteRepeater.itemAt(root.editingIndex);
+    if (!activeCard) return;
+
+    root.finishEditing(activeCard.getEditedText(), activeCard.noteColor);
+  }
+
+  Shortcut {
+    sequence: "Escape"
+    enabled: root.hasActiveEditor
+    context: Qt.WindowShortcut
+    onActivated: {
+      root.saveActiveEditor();
+    }
   }
 
   ColumnLayout {
@@ -129,6 +154,7 @@ Item {
 
         // Existing notes
         Repeater {
+          id: noteRepeater
           model: root.notesModel
 
           delegate: NoteCard {

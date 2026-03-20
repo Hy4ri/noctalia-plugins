@@ -343,12 +343,54 @@ Rectangle {
           font.pointSize: Style.fontSizeS * Style.uiScaleRatio
           wrapMode: TextEdit.Wrap
           selectByMouse: true
+          selectByKeyboard: true
+          persistentSelection: true
+
+          Shortcut {
+            sequence: StandardKey.Copy
+            enabled: editTextArea.activeFocus
+            onActivated: editTextArea.copy()
+          }
+
+          Shortcut {
+            sequence: StandardKey.Cut
+            enabled: editTextArea.activeFocus
+            onActivated: editTextArea.cut()
+          }
+
+          Shortcut {
+            sequence: StandardKey.Paste
+            enabled: editTextArea.activeFocus
+            onActivated: editTextArea.paste()
+          }
+
+          Shortcut {
+            sequence: StandardKey.SelectAll
+            enabled: editTextArea.activeFocus
+            onActivated: editTextArea.selectAll()
+          }
+
+          Shortcut {
+            sequence: StandardKey.Undo
+            enabled: editTextArea.activeFocus
+            onActivated: editTextArea.undo()
+          }
+
+          Shortcut {
+            sequence: StandardKey.Redo
+            enabled: editTextArea.activeFocus
+            onActivated: editTextArea.redo()
+          }
+
+          Keys.onShortcutOverride: (event) => {
+            if (event.key === Qt.Key_Escape) {
+              noteCard.saveClicked(editTextArea.text, noteCard.noteColor);
+              event.accepted = true;
+            }
+          }
 
           Keys.onPressed: (event) => {
-            if (event.key === Qt.Key_Escape) {
-              noteCard.cancelClicked();
-              event.accepted = true;
-            } else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) &&
+            if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) &&
                        (event.modifiers & Qt.ControlModifier)) {
               noteCard.saveClicked(editTextArea.text, noteCard.noteColor);
               event.accepted = true;
@@ -364,7 +406,7 @@ Rectangle {
       NText {
         Layout.fillWidth: true
         horizontalAlignment: Text.AlignRight
-        text: noteCard.pluginApi?.tr("editor.hint") || "Ctrl+Enter save · Esc cancel"
+        text: noteCard.pluginApi?.tr("editor.hint") || "Ctrl+Enter save · Esc save"
         font.pointSize: (Style.fontSizeXS - 1) * Style.uiScaleRatio
         color: Qt.rgba(0, 0, 0, 0.3)
       }
@@ -386,5 +428,13 @@ Rectangle {
     anchors.fill: parent
     z: -1
     onDoubleClicked: noteCard.editClicked()
+  }
+
+  function getEditedText() {
+    return editTextArea.text;
+  }
+
+  function saveCurrent() {
+    noteCard.saveClicked(editTextArea.text, noteCard.noteColor);
   }
 }
