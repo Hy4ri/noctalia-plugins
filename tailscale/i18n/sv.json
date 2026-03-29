@@ -97,5 +97,8 @@
       "unknown": "Ett oväntat fel uppstod",
       "file-exists": "Filen finns redan i nedladdningsmappen"
     }
+  },
+  "file-picker": {
+    "title": "Välj fil att skicka via Taildrop"
   }
 }

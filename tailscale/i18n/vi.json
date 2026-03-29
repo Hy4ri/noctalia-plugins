@@ -97,5 +97,8 @@
       "unknown": "Đã xảy ra lỗi không mong muốn",
       "file-exists": "Tệp đã tồn tại trong thư mục tải xuống"
     }
+  },
+  "file-picker": {
+    "title": "Chọn tệp để gửi qua Taildrop"
   }
 }

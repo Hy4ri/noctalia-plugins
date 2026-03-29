@@ -97,5 +97,8 @@
       "unknown": "Une erreur inattendue s'est produite",
       "file-exists": "Le fichier existe déjà dans le répertoire de téléchargement"
     }
+  },
+  "file-picker": {
+    "title": "Sélectionner un fichier à envoyer via Taildrop"
   }
 }

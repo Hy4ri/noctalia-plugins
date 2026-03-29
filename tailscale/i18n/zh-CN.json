@@ -97,5 +97,8 @@
       "unknown": "发生意外错误",
       "file-exists": "文件已存在于下载目录中"
     }
+  },
+  "file-picker": {
+    "title": "选择要通过Taildrop发送的文件"
   }
 }

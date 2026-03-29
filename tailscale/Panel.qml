@@ -28,6 +28,7 @@ Item {
 
   NFilePicker {
     id: sendFilePicker
+    title: pluginApi?.tr("file-picker.title")
     selectionMode: "files"
     initialPath: Quickshell.env("HOME") ?? ""
     onAccepted: function(paths) {

@@ -97,5 +97,8 @@
       "unknown": "An unexpected error occurred",
       "file-exists": "File already exists in the download directory"
     }
-  }
+  },
+  "file-picker": {
+    "title": "Select file to send via Taildrop"
+  }  
 }
