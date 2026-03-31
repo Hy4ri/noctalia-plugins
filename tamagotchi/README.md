@@ -26,14 +26,6 @@ No constant attention required — just check in from time to time.
 
 ---
 
-## 🖼 Preview
-
-![Pet](images/image.png)
-
-![Pet State](images/image2.png)
-
----
-
 ## ❤️ Special Thanks
 
 BTW the frog's name is **Forgy**, created by my girlfriend, **Lu Bollati** — thank you for bringing so much personality and charm into this little creature.
