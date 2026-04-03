@@ -170,9 +170,9 @@ Item {
             onStreamFinished: {
                 const pos = root.currentPosition
                 root.currentPosition = parseFloat(this.text)
-                Logger.d("songPositionProc", "old:", pos)
-                Logger.d("songPositionProc", "new:", root.currentPosition)
-                Logger.d("songPositionProc", "loading:", root.isLoading)
+                // Logger.d("songPositionProc", "old:", pos)
+                // Logger.d("songPositionProc", "new:", root.currentPosition)
+                // Logger.d("songPositionProc", "loading:", root.isLoading)
 
                 if (root.isLoading) {
                     root.isLoading = false
@@ -197,12 +197,12 @@ Item {
 
     Process {
         id: fetchLyricProc
-        command: ["curl", "https://lrclib.net/api/get?track_name=" + tempTitle.replace(/ /g, "+") + "&artist_name=" + tempArtist.replace(/ /g, "+") + "&album_name=" + tempAlbum.replace(/ /g, "+") + "&duration=" + tempLength]
+        command: ["curl", "https://lrclib.net/api/get?track_name=" + tempTitle.replace(/ /g, "+") + "&artist_name=" + tempArtist.replace(/ /g, "+").replace(/，/g, ",") + "&album_name=" + tempAlbum.replace(/ /g, "+") + "&duration=" + tempLength]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                Logger.d("fetchLyricProc", "fetching lyrics...")
-                Logger.d("fetchLyricProc", "https://lrclib.net/api/get?track_name=" + tempTitle.replace(/ /g, "+") + "&artist_name=" + tempArtist.replace(/ /g, "+") + "&album_name=" + tempAlbum.replace(/ /g, "+") + "&duration=" + tempLength)
+                // Logger.d("fetchLyricProc", "fetching lyrics...")
+                // Logger.d("fetchLyricProc", "https://lrclib.net/api/get?track_name=" + tempTitle.replace(/ /g, "+") + "&artist_name=" + tempArtist.replace(/ /g, "+").replace(/，/g, ",") + "&album_name=" + tempAlbum.replace(/ /g, "+") + "&duration=" + tempLength)
                 const output = this.text
                 // Logger.d("fetchLyricProc", "output:", output)
 
@@ -272,7 +272,7 @@ Item {
             // Logger.d("lyricTimer", "currTime:", currentPosition)
             root.songIndex++
             root.lyricInterval = (root.songLyrics[root.songIndex].time - root.currentPosition) * 1000
-            Logger.d("lyricTimer", "starting new timer:", root.lyricInterval)
+            // Logger.d("lyricTimer", "starting new timer:", root.lyricInterval)
             root.currentPosition = root.songLyrics[root.songIndex].time
             lyricsTimer.restart()
         }
