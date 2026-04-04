@@ -203,7 +203,7 @@ ColumnLayout {
     pluginApi.pluginSettings.autoApplyOnStartup = root.editAutoApplyOnStartup;
 
     pluginApi.saveSettings();
-    Logger.i("LWEController", "Settings saved", "wallpapersFolder=", root.editWallpapersFolder, "assetsDir=", root.editAssetsDir, "defaultScaling=", root.editDefaultScaling, "defaultFps=", root.editDefaultFps, "defaultVolume=", root.editDefaultVolume, "defaultMuted=", root.editDefaultMuted, "defaultAudioReactiveEffects=", root.editDefaultAudioReactiveEffects, "defaultDisableMouse=", root.editDefaultDisableMouse, "defaultDisableParallax=", root.editDefaultDisableParallax, "defaultNoFullscreenPause=", root.editDefaultNoFullscreenPause, "defaultFullscreenPauseOnlyActive=", root.editDefaultFullscreenPauseOnlyActive, "autoDetectWorkshop=", root.editAutoDetectWorkshop, "autoApplyOnStartup=", root.editAutoApplyOnStartup);
+    Logger.d("LWEController", "Settings saved", "wallpapersFolder=", root.editWallpapersFolder, "assetsDir=", root.editAssetsDir, "defaultScaling=", root.editDefaultScaling, "defaultFps=", root.editDefaultFps, "defaultVolume=", root.editDefaultVolume, "defaultMuted=", root.editDefaultMuted, "defaultAudioReactiveEffects=", root.editDefaultAudioReactiveEffects, "defaultDisableMouse=", root.editDefaultDisableMouse, "defaultDisableParallax=", root.editDefaultDisableParallax, "defaultNoFullscreenPause=", root.editDefaultNoFullscreenPause, "defaultFullscreenPauseOnlyActive=", root.editDefaultFullscreenPauseOnlyActive, "autoDetectWorkshop=", root.editAutoDetectWorkshop, "autoApplyOnStartup=", root.editAutoApplyOnStartup);
 
     if (pluginApi.mainInstance && pluginApi.mainInstance.engineAvailable) {
       Logger.d("LWEController", "Triggering engine reload after settings save");

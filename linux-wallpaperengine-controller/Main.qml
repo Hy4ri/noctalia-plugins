@@ -28,7 +28,7 @@ Item {
     Logger.i("LWEController", "Main initialized");
   }
 
-  function ensureSettingsRoot() {
+  function ensureSettingsRoot(): void {
     if (!pluginApi) {
       return;
     }
@@ -46,11 +46,11 @@ Item {
     }
   }
 
-  function cloneValue(value) {
+  function cloneValue(value: var): var {
     return JSON.parse(JSON.stringify(value || ({})));
   }
 
-  function hasAnyScreenPathFrom(sourceScreens) {
+  function hasAnyScreenPathFrom(sourceScreens: var): bool {
     const screens = sourceScreens || ({});
     const keys = Object.keys(screens);
     for (const key of keys) {
@@ -63,7 +63,7 @@ Item {
     return false;
   }
 
-  function markRuntimeRecoveryPending(value, flushToDisk = true) {
+  function markRuntimeRecoveryPending(value: bool, flushToDisk: bool = true): void {
     if (!pluginApi) {
       return;
     }
@@ -80,7 +80,7 @@ Item {
     }
   }
 
-  function saveCurrentLayoutAsLastKnownGood(reason) {
+  function saveCurrentLayoutAsLastKnownGood(reason: string): bool {
     if (!pluginApi) {
       return false;
     }
@@ -101,7 +101,7 @@ Item {
     return true;
   }
 
-  function restoreLastKnownGoodLayout(reason) {
+  function restoreLastKnownGoodLayout(reason: string): bool {
     if (!pluginApi) {
       return false;
     }
@@ -122,7 +122,7 @@ Item {
     return true;
   }
 
-  function tryAutoRecoverFromRuntimeError(reason) {
+  function tryAutoRecoverFromRuntimeError(reason: string): bool {
     if (!pluginApi || recoveryInProgress) {
       return false;
     }
@@ -141,7 +141,7 @@ Item {
     return true;
   }
 
-  function recoverPendingLayoutOnStartup() {
+  function recoverPendingLayoutOnStartup(): bool {
     if (!pluginApi) {
       return false;
     }
@@ -162,15 +162,10 @@ Item {
     return true;
   }
 
-  function defaultScaling() {
-    return cfg.defaultScaling ?? defaults.defaultScaling ?? "fill";
-  }
+  readonly property string defaultScaling: cfg.defaultScaling ?? defaults.defaultScaling ?? "fill"
+  readonly property int defaultFps: cfg.defaultFps ?? defaults.defaultFps ?? 30
 
-  function defaultFps() {
-    return cfg.defaultFps ?? defaults.defaultFps ?? 30;
-  }
-
-  function defaultVolume() {
+  readonly property int defaultVolume: {
     const value = Number(cfg.defaultVolume ?? defaults.defaultVolume ?? 100);
     if (isNaN(value)) {
       return 100;
@@ -178,73 +173,39 @@ Item {
     return Math.max(0, Math.min(100, Math.floor(value)));
   }
 
-  function defaultMuted() {
-    return cfg.defaultMuted ?? defaults.defaultMuted ?? true;
-  }
+  readonly property bool defaultMuted: cfg.defaultMuted ?? defaults.defaultMuted ?? true
+  readonly property bool defaultAudioReactiveEffects: cfg.defaultAudioReactiveEffects ?? defaults.defaultAudioReactiveEffects ?? true
+  readonly property bool defaultDisableMouse: cfg.defaultDisableMouse ?? defaults.defaultDisableMouse ?? false
+  readonly property bool defaultDisableParallax: cfg.defaultDisableParallax ?? defaults.defaultDisableParallax ?? false
+  readonly property bool defaultNoFullscreenPause: cfg.defaultNoFullscreenPause ?? defaults.defaultNoFullscreenPause ?? false
+  readonly property bool defaultFullscreenPauseOnlyActive: cfg.defaultFullscreenPauseOnlyActive ?? defaults.defaultFullscreenPauseOnlyActive ?? false
+  readonly property bool defaultAutoApply: cfg.autoApplyOnStartup ?? defaults.autoApplyOnStartup ?? true
+  readonly property bool defaultAutoDetectWorkshop: cfg.autoDetectWorkshop ?? defaults.autoDetectWorkshop ?? true
+  readonly property string assetsDir: cfg.assetsDir ?? defaults.assetsDir ?? ""
+  readonly property bool shouldRunWorkshopScan: defaultAutoDetectWorkshop && normalizedPath(cfg.wallpapersFolder ?? defaults.wallpapersFolder ?? "").length === 0
 
-  function defaultAudioReactiveEffects() {
-    return cfg.defaultAudioReactiveEffects ?? defaults.defaultAudioReactiveEffects ?? true;
-  }
-
-  function defaultDisableMouse() {
-    return cfg.defaultDisableMouse ?? defaults.defaultDisableMouse ?? false;
-  }
-
-  function defaultDisableParallax() {
-    return cfg.defaultDisableParallax ?? defaults.defaultDisableParallax ?? false;
-  }
-
-  function defaultNoFullscreenPause() {
-    return cfg.defaultNoFullscreenPause ?? defaults.defaultNoFullscreenPause ?? false;
-  }
-
-  function defaultFullscreenPauseOnlyActive() {
-    return cfg.defaultFullscreenPauseOnlyActive ?? defaults.defaultFullscreenPauseOnlyActive ?? false;
-  }
-
-  function defaultAutoApply() {
-    return cfg.autoApplyOnStartup ?? defaults.autoApplyOnStartup ?? true;
-  }
-
-  function defaultAutoDetectWorkshop() {
-    return cfg.autoDetectWorkshop ?? defaults.autoDetectWorkshop ?? true;
-  }
-
-  function assetsDir() {
-    return cfg.assetsDir ?? defaults.assetsDir ?? "";
-  }
-
-  function shouldRunWorkshopScan() {
-    if (!defaultAutoDetectWorkshop()) {
-      return false;
-    }
-
-    const configuredFolder = normalizedPath(cfg.wallpapersFolder ?? defaults.wallpapersFolder ?? "");
-    return configuredFolder.length === 0;
-  }
-
-  function normalizedPath(path) {
+  function normalizedPath(path: var): string {
     return Settings.preprocessPath(String(path || ""));
   }
 
-  function getScreenConfig(screenName) {
+  function getScreenConfig(screenName: string): var {
     const screenConfigs = cfg.screens || ({});
     const raw = screenConfigs[screenName] || ({});
 
-    const resolvedVolume = Number(raw.volume ?? defaultVolume());
+    const resolvedVolume = Number(raw.volume ?? defaultVolume);
 
     return {
       path: raw.path ?? "",
-      scaling: raw.scaling ?? defaultScaling(),
-      volume: isNaN(resolvedVolume) ? defaultVolume() : Math.max(0, Math.min(100, Math.floor(resolvedVolume))),
-      muted: raw.muted ?? defaultMuted(),
-      audioReactiveEffects: raw.audioReactiveEffects ?? defaultAudioReactiveEffects(),
-      disableMouse: raw.disableMouse ?? defaultDisableMouse(),
-      disableParallax: raw.disableParallax ?? defaultDisableParallax()
+      scaling: raw.scaling ?? defaultScaling,
+      volume: isNaN(resolvedVolume) ? defaultVolume : Math.max(0, Math.min(100, Math.floor(resolvedVolume))),
+      muted: raw.muted ?? defaultMuted,
+      audioReactiveEffects: raw.audioReactiveEffects ?? defaultAudioReactiveEffects,
+      disableMouse: raw.disableMouse ?? defaultDisableMouse,
+      disableParallax: raw.disableParallax ?? defaultDisableParallax
     };
   }
 
-  function hasAnyConfiguredWallpaper() {
+  function hasAnyConfiguredWallpaper(): bool {
     for (const screen of Quickshell.screens) {
       const screenCfg = getScreenConfig(screen.name);
       if (screenCfg.path && screenCfg.path.length > 0) {
@@ -254,11 +215,11 @@ Item {
     return false;
   }
 
-  function setScreenWallpaper(screenName, path) {
+  function setScreenWallpaper(screenName: string, path: string): void {
     setScreenWallpaperWithOptions(screenName, path, ({}));
   }
 
-  function setScreenWallpaperWithOptions(screenName, path, options) {
+  function setScreenWallpaperWithOptions(screenName: string, path: string, options: var): void {
     if (!pluginApi) {
       return;
     }
@@ -273,7 +234,7 @@ Item {
 
     pluginApi.pluginSettings.screens[screenName].path = path;
 
-    const resolvedScaling = String(options?.scaling || "").trim();
+    const resolvedScaling = (options?.scaling || "").trim();
     if (resolvedScaling.length > 0) {
       pluginApi.pluginSettings.screens[screenName].scaling = resolvedScaling;
     }
@@ -306,7 +267,7 @@ Item {
     restartEngine();
   }
 
-  function clearScreenWallpaper(screenName) {
+  function clearScreenWallpaper(screenName: string): void {
     if (!pluginApi) {
       return;
     }
@@ -325,12 +286,12 @@ Item {
     restartEngine();
   }
 
-  function setAllScreensWallpaper(path) {
+  function setAllScreensWallpaper(path: string): void {
     setAllScreensWallpaperWithOptions(path, ({}));
   }
 
-  function setAllScreensWallpaperWithOptions(path, options) {
-    if (!pluginApi || !path || String(path).length === 0) {
+  function setAllScreensWallpaperWithOptions(path: string, options: var): void {
+    if (!pluginApi || !path || path.length === 0) {
       return;
     }
 
@@ -338,7 +299,7 @@ Item {
 
     ensureSettingsRoot();
 
-    const resolvedScaling = String(options?.scaling || "").trim();
+    const resolvedScaling = (options?.scaling || "").trim();
     const resolvedVolumeRaw = Number(options?.volume);
     const hasResolvedVolume = !isNaN(resolvedVolumeRaw);
     const resolvedVolume = hasResolvedVolume ? Math.max(0, Math.min(100, Math.floor(resolvedVolumeRaw))) : 0;
@@ -377,8 +338,8 @@ Item {
     restartEngine();
   }
 
-  function extractRuntimeError(stderrText) {
-    const text = String(stderrText || "").trim();
+  function extractRuntimeError(stderrText: string): string {
+    const text = (stderrText || "").trim();
     if (text.length === 0) {
       return "";
     }
@@ -398,7 +359,7 @@ Item {
     }
 
     const lines = text.split(/\r?\n/)
-      .map(line => String(line || "").trim())
+      .map(line => (line || "").trim())
       .filter(line => line.length > 0);
 
     if (lines.length === 0) {
@@ -422,8 +383,8 @@ Item {
     return summary;
   }
 
-  function setRuntimeErrorFromStderr(stderrText) {
-    const raw = String(stderrText || "").trim();
+  function setRuntimeErrorFromStderr(stderrText: string): bool {
+    const raw = (stderrText || "").trim();
     if (raw.length === 0) {
       return false;
     }
@@ -438,14 +399,14 @@ Item {
     return true;
   }
 
-  function markErrorAsRecovered() {
+  function markErrorAsRecovered(): void {
     const hintRaw = pluginApi?.tr("main.error.autoRecovered");
     if (hintRaw === undefined || hintRaw === null) {
       return;
     }
 
-    const hint = String(hintRaw).trim();
-    const current = String(lastError || "").trim();
+    const hint = hintRaw.trim();
+    const current = (lastError || "").trim();
     if (hint.length === 0 || current.length === 0) {
       return;
     }
@@ -457,15 +418,15 @@ Item {
     lastError = current + " (" + hint + ")";
   }
 
-  function buildCommand() {
+  function buildCommand(): list<var> {
     const command = ["linux-wallpaperengine"];
     let firstPath = "";
     let runtimeOptions = {
-      volume: defaultVolume(),
-      muted: defaultMuted(),
-      audioReactiveEffects: defaultAudioReactiveEffects(),
-      disableMouse: defaultDisableMouse(),
-      disableParallax: defaultDisableParallax()
+      volume: defaultVolume,
+      muted: defaultMuted,
+      audioReactiveEffects: defaultAudioReactiveEffects,
+      disableMouse: defaultDisableMouse,
+      disableParallax: defaultDisableParallax
     };
 
     for (const candidate of Quickshell.screens) {
@@ -484,7 +445,7 @@ Item {
     }
 
     command.push("--fps");
-    command.push(String(defaultFps()));
+    command.push(String(defaultFps));
 
     if (runtimeOptions.muted) {
       command.push("--silent");
@@ -505,15 +466,15 @@ Item {
       command.push("--disable-parallax");
     }
 
-    if (defaultNoFullscreenPause()) {
+    if (defaultNoFullscreenPause) {
       command.push("--no-fullscreen-pause");
     }
 
-    if (defaultFullscreenPauseOnlyActive()) {
+    if (defaultFullscreenPauseOnlyActive) {
       command.push("--fullscreen-pause-only-active");
     }
 
-    const maybeAssetsDir = normalizedPath(assetsDir());
+    const maybeAssetsDir = normalizedPath(assetsDir);
     if (maybeAssetsDir.length > 0) {
       command.push("--assets-dir");
       command.push(maybeAssetsDir);
@@ -545,7 +506,7 @@ Item {
     return command;
   }
 
-  function stopAll() {
+  function stopAll(): void {
     Logger.i("LWEController", "Stopping engine process");
     pendingCommand = [];
 
@@ -558,7 +519,7 @@ Item {
     statusMessage = pluginApi?.tr("main.status.stopped");
   }
 
-  function startEngineWithCommand(command) {
+  function startEngineWithCommand(command: list<var>): void {
     if (!engineAvailable) {
       Logger.w("LWEController", "Skip start: engine unavailable");
       return;
@@ -584,7 +545,7 @@ Item {
     stableRunTimer.restart();
   }
 
-  function restartEngine() {
+  function restartEngine(): void {
     if (!engineAvailable) {
       Logger.w("LWEController", "Skip restart: engine unavailable");
       return;
@@ -614,7 +575,7 @@ Item {
     startEngineWithCommand(command);
   }
 
-  function reload() {
+  function reload(): void {
     if (!hasAnyConfiguredWallpaper()) {
       lastError = "";
       lastErrorDetails = "";
@@ -628,7 +589,7 @@ Item {
 
   Process {
     id: workshopScan
-    running: root.shouldRunWorkshopScan()
+    running: root.shouldRunWorkshopScan
     command: [
       "sh",
       "-c",
@@ -636,7 +597,7 @@ Item {
     ]
 
     onExited: function () {
-      const detected = String(stdout.text || "").trim();
+      const detected = (stdout.text || "").trim();
 
       if (detected.length > 0) {
         Logger.i("LWEController", "Detected workshop folder", detected);
@@ -649,7 +610,7 @@ Item {
       }
 
       const resolvedConfigured = root.normalizedPath(root.cfg.wallpapersFolder ?? root.defaults.wallpapersFolder ?? "");
-      if (resolvedConfigured.length === 0 && root.defaultAutoDetectWorkshop()) {
+      if (resolvedConfigured.length === 0 && root.defaultAutoDetectWorkshop) {
         Logger.i("LWEController", "Auto-applying detected wallpapersFolder", detected);
         root.pluginApi.pluginSettings.wallpapersFolder = detected;
         root.pluginApi.saveSettings();
@@ -683,7 +644,7 @@ Item {
 
       root.recoverPendingLayoutOnStartup();
 
-      if (root.defaultAutoApply() && root.hasAnyConfiguredWallpaper()) {
+      if (root.defaultAutoApply && root.hasAnyConfiguredWallpaper()) {
         Logger.i("LWEController", "Auto apply enabled with configured wallpapers; restarting engine");
         root.restartEngine();
       }
@@ -748,7 +709,7 @@ Item {
   IpcHandler {
     target: "plugin:linux-wallpaperengine-controller"
 
-    function toggle() {
+    function toggle(): void {
       if (root.pluginApi) {
         root.pluginApi.withCurrentScreen(screen => {
           root.pluginApi.togglePanel(screen);
@@ -756,7 +717,7 @@ Item {
       }
     }
 
-    function apply(screenName, bgPath) {
+    function apply(screenName: string, bgPath: string): void {
       if (!screenName || !bgPath) {
         Logger.w("LWEController", "IPC apply ignored due to invalid args", screenName, bgPath);
         return;
@@ -767,7 +728,7 @@ Item {
       root.setScreenWallpaper(screenName, bgPath);
     }
 
-    function stop(screenName) {
+    function stop(screenName: string): void {
       if (!screenName || screenName === "all") {
         Logger.i("LWEController", "IPC stop all");
         root.stopAll();
@@ -779,7 +740,7 @@ Item {
       root.clearScreenWallpaper(screenName);
     }
 
-    function reload() {
+    function reload(): void {
       root.reload();
     }
   }

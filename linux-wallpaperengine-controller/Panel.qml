@@ -26,8 +26,8 @@ Item {
   readonly property bool panelAnchorHorizontalCenter: false
   readonly property bool panelAnchorVerticalCenter: false
 
-  property string wallpapersFolder: cfg.wallpapersFolder ?? defaults.wallpapersFolder ?? ""
-  property string resolvedWallpapersFolder: Settings.preprocessPath(wallpapersFolder)
+  readonly property string wallpapersFolder: cfg.wallpapersFolder ?? defaults.wallpapersFolder ?? ""
+  readonly property string resolvedWallpapersFolder: Settings.preprocessPath(wallpapersFolder)
   property string selectedScreenName: pluginApi?.panelOpenScreen?.name ?? ""
   property string selectedPath: ""
   property string pendingPath: ""
@@ -389,6 +389,12 @@ Item {
   onSortModeChanged: refreshVisibleWallpapers()
   onSortAscendingChanged: refreshVisibleWallpapers()
   onSelectedScreenNameChanged: syncSelectionOptionsFromScreen()
+  onWallpapersFolderChanged: {
+    if (!root.pluginApi) {
+      return;
+    }
+    scanWallpapers();
+  }
 
   Component.onCompleted: {
     Logger.i("LWEController", "Panel opened", "screen=", selectedScreenName);
@@ -408,20 +414,6 @@ Item {
     }
     if (sortDropdownOpen) {
       openSortDropdown();
-    }
-  }
-
-  Connections {
-    target: pluginApi
-
-    function onPluginSettingsChanged() {
-      const nextWallpapersFolder = root.cfg.wallpapersFolder ?? root.defaults.wallpapersFolder ?? "";
-      const wallpapersFolderChanged = nextWallpapersFolder !== root.wallpapersFolder;
-      root.wallpapersFolder = nextWallpapersFolder;
-      root.rebuildScreenModel();
-      if (wallpapersFolderChanged) {
-        root.scanWallpapers();
-      }
     }
   }
 
@@ -545,7 +537,8 @@ Item {
                   required property var modelData
                   Layout.fillWidth: true
                   enabled: mainInstance?.engineAvailable
-                  text: (root.selectedScreenName === modelData.key ? "✓ " : "") + modelData.name
+                  icon: root.selectedScreenName === modelData.key ? "check" : "device-desktop"
+                  text: modelData.name
                   onClicked: root.selectedScreenName = modelData.key
                 }
               }
@@ -595,7 +588,7 @@ Item {
 
                   NText {
                     Layout.fillWidth: true
-                    text: pluginApi?.tr("panel.filterButton") + " \u00b7 " + root.typeLabel(root.selectedType)
+                    text: pluginApi?.tr("panel.filterButtonSummary", { type: root.typeLabel(root.selectedType) })
                     color: Color.mOnSurface
                     elide: Text.ElideRight
                   }
@@ -643,7 +636,10 @@ Item {
 
                   NText {
                     Layout.fillWidth: true
-                    text: pluginApi?.tr("panel.sortButton") + " \u00b7 " + (root.sortAscending ? "\u2191 " : "\u2193 ") + root.sortLabel(root.sortMode)
+                    text: pluginApi?.tr("panel.sortButtonSummary", {
+                      direction: root.sortAscending ? "\u2191" : "\u2193",
+                      sort: root.sortLabel(root.sortMode)
+                    })
                     color: Color.mOnSurface
                     elide: Text.ElideRight
                   }
@@ -1299,7 +1295,13 @@ Item {
         { "label": pluginApi?.tr("panel.sortDateAdded"), "action": "sort:date", "selected": root.sortMode === "date" },
         { "label": pluginApi?.tr("panel.sortSize"), "action": "sort:size", "selected": root.sortMode === "size" },
         { "label": pluginApi?.tr("panel.sortRecent"), "action": "sort:recent", "selected": root.sortMode === "recent" },
-        { "label": (root.sortAscending ? "\u2191 " : "\u2193 ") + pluginApi?.tr("panel.sortAscendingToggle"), "action": "sort:toggleAscending", "selected": false }
+        {
+          "label": pluginApi?.tr("panel.sortAscendingToggleWithDirection", {
+            direction: root.sortAscending ? "\u2191" : "\u2193"
+          }),
+          "action": "sort:toggleAscending",
+          "selected": false
+        }
       ]
 
       delegate: Rectangle {
