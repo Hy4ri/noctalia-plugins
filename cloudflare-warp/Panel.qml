@@ -54,7 +54,6 @@ Item {
 
             CloudflareIcon {
               pointSize: Style.fontSizeL
-              applyUiScale: false
               color: (mainInstance?.warpConnected ?? false) ? Color.mPrimary : Color.mOnSurfaceVariant
             }
 
