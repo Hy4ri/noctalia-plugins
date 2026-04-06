@@ -155,10 +155,6 @@
     "defaultDisableParallax": {
       "label": "Disable parallax effect"
     },
-    "autoDetectWorkshop": {
-      "label": "Auto-detect Steam wallpaper directory",
-      "description": "When source directory is not set manually, auto-detect Steam install path and workshop directory"
-    },
     "autoApplyOnStartup": {
       "label": "Auto apply on startup",
       "description": "If at least one screen has a configured wallpaper, run the engine automatically on startup"

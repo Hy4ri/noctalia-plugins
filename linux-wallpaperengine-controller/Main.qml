@@ -180,9 +180,7 @@ Item {
   readonly property bool defaultNoFullscreenPause: cfg.defaultNoFullscreenPause ?? defaults.defaultNoFullscreenPause ?? false
   readonly property bool defaultFullscreenPauseOnlyActive: cfg.defaultFullscreenPauseOnlyActive ?? defaults.defaultFullscreenPauseOnlyActive ?? false
   readonly property bool defaultAutoApply: cfg.autoApplyOnStartup ?? defaults.autoApplyOnStartup ?? true
-  readonly property bool defaultAutoDetectWorkshop: cfg.autoDetectWorkshop ?? defaults.autoDetectWorkshop ?? true
   readonly property string assetsDir: cfg.assetsDir ?? defaults.assetsDir ?? ""
-  readonly property bool shouldRunWorkshopScan: defaultAutoDetectWorkshop && normalizedPath(cfg.wallpapersFolder ?? defaults.wallpapersFolder ?? "").length === 0
 
   function normalizedPath(path) {
     return Settings.preprocessPath(String(path || ""));
@@ -585,40 +583,6 @@ Item {
     }
 
     restartEngine();
-  }
-
-  Process {
-    id: workshopScan
-    running: root.shouldRunWorkshopScan
-    command: [
-      "sh",
-      "-c",
-      "for common in \"$HOME/.steam/steam/steamapps/common\" \"$HOME/.local/share/Steam/steamapps/common\" \"$HOME/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common\" \"$HOME/snap/steam/common/.local/share/Steam/steamapps/common\"; do if [ -d \"$common\" ]; then workshop=\"${common%/common}/workshop/content/431960\"; if [ -d \"$workshop\" ]; then printf '%s\\n' \"$workshop\"; exit 0; fi; fi; done; exit 0"
-    ]
-
-    onExited: function () {
-      const detected = (stdout.text || "").trim();
-
-      if (detected.length > 0) {
-        Logger.i("LWEController", "Detected workshop folder", detected);
-      } else {
-        Logger.w("LWEController", "No workshop folder detected from Steam candidates");
-      }
-
-      if (!root.pluginApi || detected.length === 0) {
-        return;
-      }
-
-      const resolvedConfigured = root.normalizedPath(root.cfg.wallpapersFolder ?? root.defaults.wallpapersFolder ?? "");
-      if (resolvedConfigured.length === 0 && root.defaultAutoDetectWorkshop) {
-        Logger.i("LWEController", "Auto-applying detected wallpapersFolder", detected);
-        root.pluginApi.pluginSettings.wallpapersFolder = detected;
-        root.pluginApi.saveSettings();
-      }
-    }
-
-    stdout: StdioCollector {}
-    stderr: StdioCollector {}
   }
 
   Process {

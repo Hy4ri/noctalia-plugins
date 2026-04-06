@@ -155,10 +155,6 @@
     "defaultDisableParallax": {
       "label": "パララックス効果を無効化"
     },
-    "autoDetectWorkshop": {
-      "label": "Steam 壁紙ディレクトリを自動検出",
-      "description": "ソースディレクトリを手動設定していない場合、Steam のインストール先とワークショップディレクトリを自動推定"
-    },
     "autoApplyOnStartup": {
       "label": "起動時に自動適用",
       "description": "少なくとも 1 つのスクリーンに壁紙が設定されている場合、起動時にエンジンを自動実行"

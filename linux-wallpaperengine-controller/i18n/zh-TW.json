@@ -155,10 +155,6 @@
     "defaultDisableParallax": {
       "label": "停用視差效果"
     },
-    "autoDetectWorkshop": {
-      "label": "自動偵測 Steam 壁紙目錄",
-      "description": "當未手動設定來源目錄時，自動推斷 Steam 安裝路徑與創意工坊目錄"
-    },
     "autoApplyOnStartup": {
       "label": "啟動時自動套用",
       "description": "若至少一個螢幕已設定壁紙，啟動時自動執行引擎"

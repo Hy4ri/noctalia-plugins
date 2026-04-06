@@ -34,7 +34,6 @@
       "defaultDisableParallax": false,
       "defaultNoFullscreenPause": false,
       "defaultFullscreenPauseOnlyActive": false,
-      "autoDetectWorkshop": true,
       "autoApplyOnStartup": true,
       "panelLastSelectedPath": "",
       "screens": {},
