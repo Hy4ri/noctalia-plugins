@@ -40,7 +40,8 @@
       "barHost": "worst",
       "colorGood": "#00ff7f",
       "colorWarning": "#f1fa8c",
-      "colorCritical": "#ff5555"
+      "colorCritical": "#ff5555",
+      "animations": true
     }
   }
 }
