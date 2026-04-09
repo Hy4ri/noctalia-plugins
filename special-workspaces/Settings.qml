@@ -229,7 +229,7 @@ ColumnLayout {
 
         NLabel {
             label: pluginApi?.tr("settings.drawer.borderRadius.label")
-            description: pluginApi ? pluginApi.tr("settings.drawer.borderRadius.description").replace("%1", Math.round(root.primaryBorderRadius * 100)) : ""
+            description: pluginApi?.tr("settings.drawer.borderRadius.description", { value: Math.round(root.primaryBorderRadius * 100) })
         }
 
         NSlider {
@@ -249,7 +249,7 @@ ColumnLayout {
 
         NLabel {
             label: pluginApi?.tr("settings.drawer.size.label")
-            description: pluginApi ? pluginApi.tr("settings.drawer.size.description").replace("%1", Math.round(root.primarySize * 100)) : ""
+            description: pluginApi?.tr("settings.drawer.size.description", { value: Math.round(root.primarySize * 100) })
         }
 
         NSlider {
@@ -473,7 +473,7 @@ ColumnLayout {
 
                     NLabel {
                         label: pluginApi?.tr("settings.workspaces.size.label")
-                        description: pluginApi ? pluginApi.tr("settings.workspaces.size.description").replace("%1", Math.round((wsRow.ws ? wsRow.ws.size ?? 0.9 : 0.9) * 100)) : ""
+                        description: pluginApi?.tr("settings.workspaces.size.description", { value: Math.round((wsRow.ws ? wsRow.ws.size ?? 0.9 : 0.9) * 100) })
                     }
 
                     NSlider {
@@ -507,7 +507,7 @@ ColumnLayout {
 
                     NLabel {
                         label: pluginApi?.tr("settings.workspaces.borderRadius.label")
-                        description: pluginApi ? pluginApi.tr("settings.workspaces.borderRadius.description").replace("%1", Math.round((wsRow.ws ? wsRow.ws.borderRadius ?? 1.0 : 1.0) * 100)) : ""
+                        description: pluginApi?.tr("settings.workspaces.borderRadius.description", { value: Math.round((wsRow.ws ? wsRow.ws.borderRadius ?? 1.0 : 1.0) * 100) })
                     }
 
                     NSlider {

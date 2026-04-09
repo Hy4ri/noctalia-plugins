@@ -31,11 +31,11 @@
       },
       "borderRadius": {
         "label": "Button Radius",
-        "description": "Roundness of the drawer button (%1%)."
+        "description": "Roundness of the drawer button ({value}%)."
       },
       "size": {
         "label": "Size",
-        "description": "Size of the drawer button (%1%)."
+        "description": "Size of the drawer button ({value}%)."
       },
       "expandDirection": {
         "label": "Expand Direction",
@@ -82,7 +82,7 @@
       },
       "size": {
         "label": "Size",
-        "description": "Size of this workspace button (%1%)."
+        "description": "Size of this workspace button ({value}%)."
       },
       "focusColor": {
         "label": "Focus Color",
@@ -90,7 +90,7 @@
       },
       "borderRadius": {
         "label": "Button Radius",
-        "description": "Roundness of this workspace button (%1%)."
+        "description": "Roundness of this workspace button ({value}%)."
       }
     }
   }

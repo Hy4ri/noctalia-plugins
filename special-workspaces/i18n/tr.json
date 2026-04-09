@@ -31,11 +31,11 @@
       },
       "borderRadius": {
         "label": "Buton Yarıçapı",
-        "description": "Çekmece butonunun yuvarlaklığı (%%1)."
+        "description": "Çekmece butonunun yuvarlaklığı (%{value})."
       },
       "size": {
         "label": "Boyut",
-        "description": "Çekmece buton boyutu (%%1)."
+        "description": "Çekmece buton boyutu (%{value})."
       },
       "expandDirection": {
         "label": "Genişleme Yönü",
@@ -82,7 +82,7 @@
       },
       "size": {
         "label": "Boyut",
-        "description": "Bu çalışma alanı butonunun boyutu (%%1)."
+        "description": "Bu çalışma alanı butonunun boyutu (%{value})."
       },
       "focusColor": {
         "label": "Odak Rengi",
@@ -90,7 +90,7 @@
       },
       "borderRadius": {
         "label": "Buton Yarıçapı",
-        "description": "Bu çalışma alanı butonunun yuvarlaklığı (%%1)."
+        "description": "Bu çalışma alanı butonunun yuvarlaklığı (%{value})."
       }
     }
   }
