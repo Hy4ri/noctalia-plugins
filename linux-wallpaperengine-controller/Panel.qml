@@ -652,7 +652,7 @@ Item {
 
     pendingCompatibilityScan = false;
     scanningCompatibility = true;
-    compatibilityScanProcess.command = ["sh", scriptPath, folderPath];
+    compatibilityScanProcess.command = ["bash", scriptPath, folderPath];
     compatibilityScanProcess.running = true;
   }
 

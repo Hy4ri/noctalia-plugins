@@ -270,6 +270,7 @@ Item {
       return;
     }
 
+    delete screenConfig.clamp;
     delete screenConfig.volume;
     delete screenConfig.muted;
     delete screenConfig.audioReactiveEffects;
@@ -305,7 +306,7 @@ Item {
       pluginApi.pluginSettings.screens[screenName].scaling = resolvedScaling;
     }
     if (resolvedClamp.length > 0) {
-      pluginApi.pluginSettings.screens[screenName].clamp = resolvedClamp;
+      pluginApi.pluginSettings.defaultClamp = resolvedClamp;
     }
 
     if (options?.volume !== undefined) {
@@ -398,12 +399,13 @@ Item {
       if (resolvedScaling.length > 0) {
         pluginApi.pluginSettings.screens[screen.name].scaling = resolvedScaling;
       }
-      if (resolvedClamp.length > 0) {
-        pluginApi.pluginSettings.screens[screen.name].clamp = resolvedClamp;
-      }
       if (options?.customProperties !== undefined) {
         setWallpaperProperties(path, options.customProperties);
       }
+    }
+
+    if (resolvedClamp.length > 0) {
+      pluginApi.pluginSettings.defaultClamp = resolvedClamp;
     }
 
     if (hasResolvedVolume) {
@@ -523,13 +525,11 @@ Item {
       disableMouse: defaultDisableMouse,
       disableParallax: defaultDisableParallax
     };
-    let runtimeClamp = defaultClamp;
 
     for (const candidate of Quickshell.screens) {
       const candidateCfg = getScreenConfig(candidate.name);
       const candidatePath = normalizedPath(candidateCfg.path);
       if (candidatePath && candidatePath.length > 0) {
-        runtimeClamp = String(cfg.defaultClamp ?? defaults.defaultClamp ?? "clamp").trim();
         break;
       }
     }
@@ -537,6 +537,7 @@ Item {
     command.push("--fps");
     command.push(String(defaultFps));
 
+    const runtimeClamp = String(defaultClamp || "clamp").trim();
     if (runtimeClamp.length > 0) {
       command.push("--clamp");
       command.push(runtimeClamp);
