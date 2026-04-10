@@ -1146,10 +1146,16 @@ Item {
 
             NIconButton {
               enabled: mainInstance?.engineAvailable ?? false
-              icon: "player-stop"
+              icon: mainInstance?.engineRunning ? "player-stop" : "player-play"
               colorFg: Color.mOnSurface
-              tooltipText: pluginApi?.tr("panel.stop")
-              onClicked: mainInstance?.stopAll(true)
+              tooltipText: mainInstance?.engineRunning ? pluginApi?.tr("panel.stop") : pluginApi?.tr("panel.start")
+              onClicked: {
+                if (mainInstance?.engineRunning) {
+                  mainInstance?.stopAll(true);
+                } else {
+                  mainInstance?.reload(true);
+                }
+              }
             }
 
             NIconButton {

@@ -18,6 +18,7 @@ Item {
   property string lastError: ""
   property string lastErrorDetails: ""
   property string statusMessage: ""
+  readonly property bool engineRunning: engineProcess.running || isApplying || pendingCommand.length > 0
 
   property var pendingCommand: []
 
