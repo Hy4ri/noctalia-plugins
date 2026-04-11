@@ -6,7 +6,6 @@
     "tags": ["Launcher"],
     "minNoctaliaVersion": "4.6.1",
     "author": "Krendil",
-    "official": false,
     "license": "MIT",
     "repository": "https://github.com/noctalia-dev/noctalia-plugins",
     "entryPoints": {
