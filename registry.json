@@ -1271,7 +1271,7 @@
     {
       "id": "special-workspaces",
       "name": "Special Workspaces (Hyprland)",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "official": false,
       "author": "Qholin",
       "description": "Configurable Hyprland special workspaces indicator for the bar.",
@@ -1283,7 +1283,7 @@
         "Productivity",
         "Hyprland"
       ],
-      "lastUpdated": "2026-04-02T00:55:20+01:00"
+      "lastUpdated": "2026-04-08T00:17:39+03:00"
     },
     {
       "id": "squeekboard-toggle",
