@@ -272,13 +272,13 @@ Item {
                   id: sceneFrame
                   anchors.fill: parent
                   border.color: Color.mOutline
-                  border.width: 1
+                  border.width: Style.borderS
                 }
 
                 Canvas {
                   id: sceneBackground
                   anchors.fill: parent
-                  anchors.margins: 1
+                  anchors.margins: Style.borderS
                   onPaint: {
                     var ctx = getContext("2d");
                     ctx.reset();
@@ -381,7 +381,7 @@ Item {
                         anchors.margins: Style.marginXS
                         height: outputTile.badgeHeight
                         border.color: outputData.outputId === root.selectedOutputId ? Color.mPrimary : Qt.alpha(Color.mOutline, 0.55)
-                        border.width: 1
+                        border.width: Style.borderS
                       }
                     }
 
@@ -768,7 +768,7 @@ Item {
                 NBox {
                   width: parent.width - 12 * Style.uiScaleRatio
                   border.color: Color.mOutline
-                  border.width: 1
+                  border.width: Style.borderS
 
                   ColumnLayout {
                     anchors.fill: parent
