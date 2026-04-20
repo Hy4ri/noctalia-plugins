@@ -784,6 +784,26 @@
       "lastUpdated": "2026-04-08T15:33:46+02:00"
     },
     {
+      "id": "monitor-layout",
+      "name": "Monitor Layout",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Mathew-D",
+      "description": "Arrange multiple displays visually and change their resolutions from a Noctalia panel.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.6.6",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "System",
+        "Utility",
+        "Sway",
+        "Hyprland"
+      ],
+      "lastUpdated": "2026-04-16T23:55:46-04:00"
+    },
+    {
       "id": "mpd",
       "name": "MPD",
       "version": "1.1.1",
