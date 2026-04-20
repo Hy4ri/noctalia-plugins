@@ -8,7 +8,7 @@ ColumnLayout {
   id: root
   property var pluginApi: null
 
-  // 1. Estado local (convención 'edit' y fallbacks oficiales)
+  // 1. Local state ('edit' convention and official fallbacks)
   property string editOverlayPath: pluginApi?.pluginSettings?.overlayPath || pluginApi?.manifest?.metadata?.defaultSettings?.overlayPath || "~/.cache/noctalia/HVE/overlay.conf"
   property bool editAutoApply: pluginApi?.pluginSettings?.autoApply ?? pluginApi?.manifest?.metadata?.defaultSettings?.autoApply ?? true
   property string editIcon: pluginApi?.pluginSettings?.icon || pluginApi?.manifest?.metadata?.defaultSettings?.icon || "adjustments-horizontal"
@@ -16,7 +16,7 @@ ColumnLayout {
 
   spacing: Style.marginM
 
-  // ── Vista previa ──────────────────────────────────────────────────────────
+  // ── Preview ────────────────────────────────────────────────────────────────
   RowLayout {
     spacing: Style.marginM
     Layout.alignment: Qt.AlignHCenter
@@ -38,7 +38,7 @@ ColumnLayout {
     }
   }
 
-  // ── Configuración de Icono ────────────────────────────────────────────────
+  // ── Icon Configuration ───────────────────────────────────────────────────
   NButton {
     Layout.fillWidth: true
     text: pluginApi?.tr("settings.change_icon_button")
@@ -63,7 +63,7 @@ ColumnLayout {
 
   NDivider { Layout.fillWidth: true }
 
-  // ── Configuración de Archivos y Aplicación (Sección recuperada) ───────────
+  // ── Files and Application Configuration (Recovered Section) ────────────────
   NTextInput {
     Layout.fillWidth: true
     label: pluginApi?.tr("settings.path_label")
@@ -81,7 +81,7 @@ ColumnLayout {
     onToggled: checked => { root.editAutoApply = checked }
   }
 
-  // ── Función de Guardado ───────────────────────────────────────────────────
+  // ── Save Function ────────────────────────────────────────────────────────
   function saveSettings() {
     if (!pluginApi) return
     
