@@ -9,6 +9,10 @@
 
 set -u
 
+if [ "$#" -lt 1 ]; then
+  exit 10
+fi
+
 extract_resolution_from_name() {
   local source_name="$1"
   local res=""
@@ -22,7 +26,7 @@ extract_resolution_from_name() {
   printf '%s' "$res"
 }
 
-dir="$1"
+dir="${1:-}"
 [ -d "$dir" ] || exit 10
 
 find "$dir" -mindepth 1 -maxdepth 1 -type d | sort | while IFS= read -r d; do
