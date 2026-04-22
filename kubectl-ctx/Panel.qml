@@ -21,25 +21,25 @@ Item {
     target: root.main
     function onActiveContextChanged() {
       nsDropdown.visible = false;
-      nsFilterText = "";
+      nsSearchInput.clearSearch();
     }
   }
 
   property string nsFilterText: ""
   property int nsHighlightIndex: 0
 
-  function nsFiltered() {
-    return (main?.namespaces ?? []).filter(n =>
-      n.toLowerCase().includes(root.nsFilterText.toLowerCase()));
+  readonly property var nsFilteredList: {
+    var all = main?.namespaces ?? [];
+    var q = root.nsFilterText.toLowerCase();
+    return q === "" ? all : all.filter(n => n.toLowerCase().includes(q));
   }
 
   function nsSelectHighlighted() {
-    var list = root.nsFiltered();
+    var list = root.nsFilteredList;
     if (list.length === 0) return;
     var idx = Math.max(0, Math.min(root.nsHighlightIndex, list.length - 1));
     nsDropdown.visible = false;
-    root.nsFilterText = "";
-    root.nsHighlightIndex = 0;
+    nsSearchInput.clearSearch();
     if (main) main.switchNamespace(list[idx]);
   }
 
@@ -295,9 +295,8 @@ Item {
                     Qt.callLater(function() {
                       if (nsSearchInput.inputItem) nsSearchInput.inputItem.forceActiveFocus();
                     });
-                  } else {
-                    root.nsFilterText = "";
-                    root.nsHighlightIndex = 0;
+                   } else {
+                    nsSearchInput.clearSearch();
                   }
                 }
               }
@@ -313,24 +312,27 @@ Item {
                   id: nsSearchInput
                   Layout.fillWidth: true
                   placeholderText: pluginApi?.tr("panel.nsSearch")
-                  text: root.nsFilterText
                   onTextChanged: {
                     root.nsFilterText = text;
                     root.nsHighlightIndex = 0;
+                  }
+                  function clearSearch() {
+                    root.nsFilterText = "";
+                    root.nsHighlightIndex = 0;
+                    text = "";
                   }
                   Keys.onUpPressed: {
                     root.nsHighlightIndex = Math.max(0, root.nsHighlightIndex - 1);
                   }
                   Keys.onDownPressed: {
-                    var max = root.nsFiltered().length - 1;
+                    var max = root.nsFilteredList.length - 1;
                     root.nsHighlightIndex = Math.min(max, root.nsHighlightIndex + 1);
                   }
                   Keys.onReturnPressed: root.nsSelectHighlighted()
                   Keys.onEnterPressed: root.nsSelectHighlighted()
                   Keys.onEscapePressed: {
                     nsDropdown.visible = false;
-                    root.nsFilterText = "";
-                    root.nsHighlightIndex = 0;
+                    nsSearchInput.clearSearch();
                   }
                 }
 
@@ -338,7 +340,7 @@ Item {
                   id: nsListScroll
                   Layout.fillWidth: true
                   Layout.preferredHeight: {
-                    var filtered = root.nsFiltered();
+                    var filtered = root.nsFilteredList;
                     var count = filtered.length;
                     if (count === 0) return Math.round(32 * Style.uiScaleRatio);
                     var rowH = nsListColumn.children.length > 0
@@ -347,7 +349,7 @@ Item {
                     return Math.min(count, 4) * rowH;
                   }
                   horizontalPolicy: ScrollBar.AlwaysOff
-                  verticalPolicy: root.nsFiltered().length > 4 ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
+                  verticalPolicy: root.nsFilteredList.length > 4 ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
 
                   ColumnLayout {
                     id: nsListColumn
@@ -355,7 +357,7 @@ Item {
                     spacing: 0
 
                     Repeater {
-                      model: root.nsFiltered()
+                      model: root.nsFilteredList
                       delegate: ContextRow {
                         required property string modelData
                         required property int index
@@ -366,15 +368,14 @@ Item {
                         highlighted: index === root.nsHighlightIndex
                         onActivated: name => {
                           nsDropdown.visible = false;
-                          root.nsFilterText = "";
-                          root.nsHighlightIndex = 0;
+                          nsSearchInput.clearSearch();
                           if (main) main.switchNamespace(name);
                         }
                       }
                     }
 
                     NText {
-                      visible: root.nsFiltered().length === 0
+                      visible: root.nsFilteredList.length === 0
                       text: pluginApi?.tr("panel.noNamespaces")
                       pointSize: Style.fontSizeS
                       color: Color.mOnSurfaceVariant
