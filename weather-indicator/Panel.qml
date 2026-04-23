@@ -15,14 +15,19 @@ Item {
     id: panelContainer
     anchors.fill: parent
     color: "transparent"
+
     ColumnLayout {
       anchors { fill: parent; margins: Style.marginL }
+      spacing: Style.marginL
+
       WeatherCardExtra {
         visible: Settings.data.location.weatherEnabled
         Layout.fillWidth: true
         forecastDays: 7
         showLocation: false
       }
+
+      Item { Layout.fillHeight: true }
     }
   }
 }
