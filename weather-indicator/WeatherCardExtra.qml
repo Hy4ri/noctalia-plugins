@@ -24,7 +24,7 @@ NBox {
   readonly property bool isClearNight: code === 0 && !isDay
 
   visible: Settings.data.location.weatherEnabled
-  implicitHeight: Math.max(100 * Style.uiScaleRatio, content.implicitHeight + (Style.marginXL * 2))
+  implicitHeight: Math.max(100 * Style.uiScaleRatio, content.implicitHeight + (Style.marginL * 2))
 
   Loader {
     anchors.fill: parent
@@ -45,7 +45,7 @@ NBox {
 
   ColumnLayout {
     id: content
-    anchors.fill: parent; anchors.margins: Style.marginXL; spacing: Style.marginM; clip: true
+    anchors.fill: parent; anchors.margins: Style.marginL; spacing: Style.marginM; clip: true
 
     RowLayout {
       Layout.fillWidth: true; spacing: Style.marginS
