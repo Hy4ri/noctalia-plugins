@@ -38,7 +38,7 @@
   },
   "delete": {
     "title": "Usuń zasób",
-    "confirm": "Czy na pewno chcesz usunąć",
+    "confirm": "Czy na pewno chcesz usunąć {resource}?",
     "yes": "Usuń",
     "cancel": "Anuluj"
   },

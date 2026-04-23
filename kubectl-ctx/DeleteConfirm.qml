@@ -41,7 +41,7 @@ Item {
     }
 
     NText {
-      text: pluginApi?.tr("delete.confirm") + " " + root.resourceKind + "/" + root.resourceName + "?"
+      text: pluginApi?.tr("delete.confirm", { "resource": root.resourceKind + "/" + root.resourceName })
       pointSize: Style.fontSizeM
       color: Color.mOnSurfaceVariant
       wrapMode: Text.WordWrap
