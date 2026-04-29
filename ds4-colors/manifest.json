@@ -3,7 +3,7 @@
   "name": "DS4 Colors",
   "version": "1.0.0",
   "minNoctaliaVersion": "4.6.6",
-  "author": "Noctalia Team",
+  "author": "Hy4ri",
   "license": "MIT",
   "repository": "https://github.com/noctalia-dev/noctalia-plugins",
   "description": "Change the lightbar color of your DualShock 4 or DualSense controller with a color picker and recent color history.",
