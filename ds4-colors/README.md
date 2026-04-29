@@ -4,11 +4,28 @@ A Noctalia plugin to change the lightbar color of DualShock 4 and DualSense cont
 
 ## Features
 
-- **16 Color Presets**: Quick one-click presets in the settings page.
-- **Custom Colors**: Set any hex color for your controller's lightbar.
+- **Color Picker**: Select any color for your controller's lightbar via the settings page.
 - **Battery Monitoring**: See your controller's battery level in the bar widget.
 - **Automatic Detection**: Finds connected PlayStation controllers (USB or Bluetooth).
 - **Persistent Settings**: Saves your preferred color across reboots.
+
+## IPC Commands
+
+Control the plugin from the command line using `qs ipc call`:
+
+```bash
+# Set color by RGB components (0–255)
+qs ipc call plugin:ds4-colors setColor 255 0 0
+
+# Set color by hex string
+qs ipc call plugin:ds4-colors setColorHex "#ff0000"
+
+# Turn the lightbar off
+qs ipc call plugin:ds4-colors off
+
+# Force a rescan for connected controllers
+qs ipc call plugin:ds4-colors scan
+```
 
 ## Setup (Required)
 
