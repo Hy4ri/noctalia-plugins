@@ -101,9 +101,5 @@ ColumnLayout {
         pluginApi.pluginSettings.colorIcon = root.valueColorIcon
         pluginApi.pluginSettings.hideOnEmpty = root.valueHideOnEmpty
         pluginApi.saveSettings()
-
-        if (pluginApi.mainInstance) {
-            pluginApi.mainInstance.applyColors()
-        }
     }
 }

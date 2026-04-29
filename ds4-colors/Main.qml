@@ -28,6 +28,12 @@ Item {
         onTriggered: root.scanControllers()
     }
 
+    // Re-apply color whenever the saved setting changes (e.g. after Settings saves)
+    Connections {
+        target: pluginApi?.pluginSettings ?? null
+        function onColorChanged() { root.applyColors() }
+    }
+
     function scanControllers() {
         if (controllerScanner.running) return
         controllerScanner.running = true
